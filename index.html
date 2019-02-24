@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <script src="js/tone.js"></script>
+      <script src="js/tune.js"></script>
+      <script src="js/qwerty-hancock.js"></script>
+      <style>
+        #keyboard {
+          margin: '65px auto';
+          padding: '20px'
+        }
+        button {
+          padding:5px 15px;
+          background-color:#fff;
+          border-radius:3px;
+          font-size:16px;
+          margin: 10px 2px;
+          outline:none;
+          cursor:pointer;
+        }
+      </style>
+  </head>
+  <body>
+    <div id="keyboard"></div>
+    <div id="scales">
+      <button onclick="setScale('ji_12',this)" id="ji_12">Just Intonation</button>
+      <button onclick="setScale('pyth_12',this)" id="pyth_12">Pythagorean</button>
+      <button onclick="setScale('neidhardt4',this)" id="neidhardt4">Equal Temperament</button>
+    </div>
+  </body>
+  <script>
+
+    /*
+    * Keyboard Setup
+    */
+    var keyboard = new QwertyHancock({
+                     id: 'keyboard',
+                     width: 800,
+                     height: 100,
+                     octaves: 2,
+                     startNote: 'c3',
+                     whiteNotesColour: 'white',
+                     blackNotesColour: 'black',
+                     activeColour: '#f00'
+                   });
+
+
+    /*
+    * Tune.js Setup
+    */
+    // Create a new Tune object
+    var tune = new Tune();
+    // Load a 12 tone just intonation scale
+    tune.loadScale('harm30');
+
+
+    /*
+    * Tone.js Setup
+    */
+    var synth = new Tone.PolySynth();
+    synth.toMaster()
+
+
+
+    /* Keyboard Interaction */
+
+    keyboard.keyDown = function(note, midi) {
+      // adjusts middle C to be 0
+      var noteIndex = midi - 48
+      synth.triggerAttack( tune.note(noteIndex, -1) );
+    };
+
+    keyboard.keyUp = function(note, midi) {
+      var noteIndex = midi - 48
+      synth.triggerRelease( tune.note(noteIndex, -1) );
+    };
+
+
+    /* Switching scales */
+
+    function setScale(scale,button) {
+      var buttons = document.getElementsByTagName("button")
+      for (var i=0;i<buttons.length;i++) {
+        buttons[i].style.backgroundColor = "#fff";
+      }
+      button.style.backgroundColor = '#ddd'
+
+      tune.loadScale(scale)
+    }
+
+    window.onload = function() {
+      document.getElementById("ji_12").click()
+    }
+
+  </script>
+</html>
